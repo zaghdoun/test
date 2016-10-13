@@ -2,5 +2,5 @@
   hosts: all
   become: true
   tasks:
-    - name: create directory ilan
-      file: path=/home/centos/ilan state=directory
+    - name: create file ilan
+      file: path=/etc/foo.conf state=touch
