@@ -1,6 +1,6 @@
-- name: create
+- name: Hello World Sample
   hosts: all
-  become: true
   tasks:
-    - name: create file ilan
-      file: path=/etc/foo.conf state=touch
+    - name: Hello Message
+      debug:
+        msg: "Hello World!"
