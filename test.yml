@@ -1,0 +1,4 @@
+---
+
+- name: create directory test
+  file: path=/home/ilan state=directory

@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Create Wordpress
-  become: true
- 
-  roles:
-    - create
