@@ -1,5 +1,6 @@
 - name: create
   hosts: all
+  become: true
   tasks:
     - name: create directory ilan
       file: path=/home/centos/ilan state=directory
