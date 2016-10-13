@@ -1,4 +1,5 @@
----
-
-- name: create directory ilan
-  file: path=/home/centos/ilan state=directory
+- name: create
+  hosts: all
+  tasks:
+    - name: create directory ilan
+      file: path=/home/centos/ilan state=directory
