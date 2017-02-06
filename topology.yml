@@ -26,19 +26,24 @@ topology_template:
     Compute:
       type: tosca.nodes.Compute
       capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
         endpoint:
           properties:
             protocol: tcp
             initiator: source
             network_name: PRIVATE
             secure: true
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
     WebApplication:
       type: tosca.nodes.WebApplication
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
       capabilities:
         app_endpoint:
           properties:
@@ -54,6 +59,7 @@ topology_template:
           activity:
             delegate: install
           on-success:
+            - WebApplication_initial
             - Runtime_initial
         Runtime_initial:
           node: Runtime
@@ -235,3 +241,5 @@ topology_template:
           node: WebApplication
           activity:
             set_state: deleted
+          on-success:
+            - Compute_uninstall
