@@ -1,0 +1,237 @@
+tosca_definitions_version: alien_dsl_1_3_0
+description: 
+template_name: Test
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+
+
+topology_template:
+  node_templates:
+    Runtime:
+      type: tosca.nodes.Container.Runtime
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            network_name: PRIVATE
+            secure: true
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    WebApplication:
+      type: tosca.nodes.WebApplication
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            network_name: PRIVATE
+            secure: false
+  workflows:
+    install:
+      steps:
+        Compute_install:
+          node: Compute
+          activity:
+            delegate: install
+          on-success:
+            - Runtime_initial
+        Runtime_initial:
+          node: Runtime
+          activity:
+            set_state: initial
+          on-success:
+            - Runtime_creating
+        Runtime_creating:
+          node: Runtime
+          activity:
+            set_state: creating
+          on-success:
+            - Runtime_created
+        Runtime_created:
+          node: Runtime
+          activity:
+            set_state: created
+          on-success:
+            - Runtime_configuring
+        Runtime_configuring:
+          node: Runtime
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_Runtime
+        configure_Runtime:
+          node: Runtime
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - Runtime_configured
+        Runtime_configured:
+          node: Runtime
+          activity:
+            set_state: configured
+          on-success:
+            - Runtime_starting
+        Runtime_starting:
+          node: Runtime
+          activity:
+            set_state: starting
+          on-success:
+            - start_Runtime
+        start_Runtime:
+          node: Runtime
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Runtime_started
+        Runtime_started:
+          node: Runtime
+          activity:
+            set_state: started
+        WebApplication_initial:
+          node: WebApplication
+          activity:
+            set_state: initial
+          on-success:
+            - WebApplication_creating
+        WebApplication_creating:
+          node: WebApplication
+          activity:
+            set_state: creating
+          on-success:
+            - WebApplication_created
+        WebApplication_created:
+          node: WebApplication
+          activity:
+            set_state: created
+          on-success:
+            - WebApplication_configuring
+        WebApplication_configuring:
+          node: WebApplication
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_WebApplication
+        configure_WebApplication:
+          node: WebApplication
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - WebApplication_configured
+        WebApplication_configured:
+          node: WebApplication
+          activity:
+            set_state: configured
+          on-success:
+            - WebApplication_starting
+        WebApplication_starting:
+          node: WebApplication
+          activity:
+            set_state: starting
+          on-success:
+            - start_WebApplication
+        start_WebApplication:
+          node: WebApplication
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - WebApplication_started
+        WebApplication_started:
+          node: WebApplication
+          activity:
+            set_state: started
+    uninstall:
+      steps:
+        Compute_uninstall:
+          node: Compute
+          activity:
+            delegate: uninstall
+        Runtime_stopping:
+          node: Runtime
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Runtime
+        stop_Runtime:
+          node: Runtime
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Runtime_stopped
+        Runtime_stopped:
+          node: Runtime
+          activity:
+            set_state: stopped
+          on-success:
+            - Runtime_deleting
+        Runtime_deleting:
+          node: Runtime
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_Runtime
+        delete_Runtime:
+          node: Runtime
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - Runtime_deleted
+        Runtime_deleted:
+          node: Runtime
+          activity:
+            set_state: deleted
+          on-success:
+            - Compute_uninstall
+        WebApplication_stopping:
+          node: WebApplication
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_WebApplication
+        stop_WebApplication:
+          node: WebApplication
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - WebApplication_stopped
+        WebApplication_stopped:
+          node: WebApplication
+          activity:
+            set_state: stopped
+          on-success:
+            - WebApplication_deleting
+        WebApplication_deleting:
+          node: WebApplication
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_WebApplication
+        delete_WebApplication:
+          node: WebApplication
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - WebApplication_deleted
+        WebApplication_deleted:
+          node: WebApplication
+          activity:
+            set_state: deleted
